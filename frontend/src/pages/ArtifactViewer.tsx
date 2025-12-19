@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import {
   ArrowLeft,
   FileText,
@@ -37,6 +39,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function ArtifactViewerPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user, hasMinimumRole } = useAuthStore()
 
@@ -111,14 +114,15 @@ export function ArtifactViewerPage() {
         )
       }
     >
-      {/* Back link */}
-      <Link
-        to={`/projects/${artifact.project_id}`}
+      {/* Back button */}
+      <Button
+        variant="ghost"
+        onClick={() => navigate(-1)}
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Project
-      </Link>
+        Back
+      </Button>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main Content */}
@@ -150,8 +154,10 @@ export function ArtifactViewerPage() {
               {/* Artifact Content */}
               <div className="prose prose-sm max-w-none dark:prose-invert">
                 {artifact.content ? (
-                  <div className="whitespace-pre-wrap font-mono text-sm bg-muted p-4 rounded-lg max-h-[600px] overflow-y-auto scrollbar-thin">
-                    {artifact.content}
+                  <div className="bg-muted p-4 rounded-lg max-h-[600px] overflow-y-auto scrollbar-thin">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {artifact.content.replace(/\\n/g, '\n')}
+                    </ReactMarkdown>
                   </div>
                 ) : artifact.file_path ? (
                   <div className="flex items-center justify-center py-12 border rounded-lg">

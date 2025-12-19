@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { ArrowLeft, CheckCircle, XCircle, Clock, FileText, Loader2 } from 'lucide-react'
 import { PageLayout } from '@/components/layout/Layout'
 import { Button } from '@/components/ui/button'
@@ -203,7 +205,9 @@ export function SignoffDetailPage() {
               {signoff.artifact?.content && (
                 <div className="prose prose-sm max-w-none">
                   <div className="bg-muted/50 p-4 rounded-lg max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm">{signoff.artifact.content}</pre>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {signoff.artifact.content.replace(/\\n/g, '\n')}
+                    </ReactMarkdown>
                   </div>
                 </div>
               )}
