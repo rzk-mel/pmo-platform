@@ -130,6 +130,60 @@ export async function syncFromGitHub(
   })
 }
 
+// Create a GitHub Issue from a ticket
+export async function createGitHubIssue(
+  ticketId: string
+): Promise<{ created: boolean; issue: { number: number; html_url: string } }> {
+  return callFunction('github-integration', {
+    action: 'create_issue',
+    ticketId,
+  })
+}
+
+// Link a ticket to an existing GitHub issue
+export async function linkGitHubIssue(
+  ticketId: string,
+  issueNumber: number
+): Promise<{ linked: boolean }> {
+  return callFunction('github-integration', {
+    action: 'link_issue',
+    ticketId,
+    issueNumber,
+  })
+}
+
+// Unlink a ticket from GitHub issue
+export async function unlinkGitHubIssue(
+  ticketId: string
+): Promise<{ unlinked: boolean }> {
+  return callFunction('github-integration', {
+    action: 'unlink_issue',
+    ticketId,
+  })
+}
+
+// Sync a single ticket from its linked GitHub issue
+export async function syncTicketFromGitHub(
+  ticketId: string
+): Promise<{ synced: boolean; status: string; updated: boolean }> {
+  return callFunction('github-integration', {
+    action: 'sync_ticket',
+    ticketId,
+  })
+}
+
+// Get GitHub issues for a project (from the linked repo)
+export async function getGitHubIssues(
+  projectId: string,
+  state?: 'open' | 'closed' | 'all'
+): Promise<{ issues: Array<{ number: number; title: string; state: string; html_url: string; created_at: string }> }> {
+  return callFunction('github-integration', {
+    action: 'get_issues',
+    projectId,
+    state: state || 'open',
+  })
+}
+
 // Staff Actions
 export async function approveArtifact(
   signoffId: string,

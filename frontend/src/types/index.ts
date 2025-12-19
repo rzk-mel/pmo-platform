@@ -249,6 +249,32 @@ export interface GitHubSync {
   updated_at: string;
 }
 
+export interface GitHubLabel {
+  name: string;
+  color: string;
+}
+
+export interface GitHubIssue {
+  number: number;
+  title: string;
+  body: string | null;
+  state: 'open' | 'closed';
+  html_url: string;
+  labels: GitHubLabel[];
+  assignee: {
+    login: string;
+    avatar_url: string;
+  } | null;
+  created_at: string;
+  updated_at: string;
+  closed_at: string | null;
+}
+
+export interface TicketWithGitHub extends Ticket {
+  github_issue?: GitHubIssue;
+  project?: Project;
+}
+
 export interface Notification {
   id: string;
   user_id: string;

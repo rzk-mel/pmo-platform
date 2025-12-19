@@ -29,10 +29,12 @@ const GITHUB_API_URL = 'https://api.github.com';
 
 // Request types
 interface GitHubRequest {
-  action: 'sync_to_github' | 'sync_from_github' | 'connect_repo' | 'disconnect_repo' | 'webhook';
+  action: 'sync_to_github' | 'sync_from_github' | 'connect_repo' | 'disconnect_repo' | 'webhook' | 'create_issue' | 'link_issue' | 'unlink_issue' | 'sync_ticket' | 'get_issues';
   projectId?: string;
   ticketId?: string;
   repoUrl?: string;
+  issueNumber?: number;
+  state?: 'open' | 'closed' | 'all';
   webhookPayload?: Record<string, unknown>;
   webhookEvent?: string;
 }
@@ -530,6 +532,196 @@ const handler = createHandler(async (req: Request, logger: Logger, requestId: st
         updated: results.filter(r => !r.created).length,
         results,
       }, 200, requestId);
+    }
+
+    case 'create_issue': {
+      // Alias for sync_to_github - creates a new GitHub issue from ticket
+      if (!body.ticketId) {
+        throw new ValidationError('ticketId is required');
+      }
+
+      const result = await syncTicketToGitHub(supabase, adminClient, body.ticketId, token, logger);
+      
+      // Get project for URL
+      const { data: ticket } = await supabase
+        .from('tickets')
+        .select('projects!inner(github_repo_url)')
+        .eq('id', body.ticketId)
+        .single();
+      
+      const repoUrl = (ticket?.projects as { github_repo_url: string })?.github_repo_url || '';
+
+      return jsonResponse({
+        created: result.created,
+        issue: {
+          number: result.issue.number,
+          html_url: `${repoUrl}/issues/${result.issue.number}`,
+        },
+      }, 200, requestId);
+    }
+
+    case 'link_issue': {
+      if (!body.ticketId || !body.issueNumber) {
+        throw new ValidationError('ticketId and issueNumber are required');
+      }
+
+      // Fetch ticket with project info
+      const { data: ticket, error: ticketError } = await supabase
+        .from('tickets')
+        .select('*, projects!inner(*)')
+        .eq('id', body.ticketId)
+        .single();
+
+      if (ticketError || !ticket) {
+        throw new ValidationError('Ticket not found');
+      }
+
+      const project = ticket.projects as { github_repo_url: string | null; github_repo_id: number | null };
+      if (!project.github_repo_url) {
+        throw new ValidationError('Project has no connected GitHub repository');
+      }
+
+      // Update ticket with GitHub issue number
+      await supabase
+        .from('tickets')
+        .update({
+          github_issue_number: body.issueNumber,
+          github_synced_at: new Date().toISOString(),
+        })
+        .eq('id', body.ticketId);
+
+      // Create sync record
+      await adminClient.from('github_syncs').insert({
+        project_id: ticket.project_id,
+        github_repo_id: project.github_repo_id!,
+        github_entity_type: 'issue',
+        github_entity_id: body.issueNumber,
+        ticket_id: body.ticketId,
+        direction: 'bilateral',
+        last_synced_at: new Date().toISOString(),
+        sync_status: 'synced',
+      }).onConflict('ticket_id').ignore();
+
+      return jsonResponse({ linked: true }, 200, requestId);
+    }
+
+    case 'unlink_issue': {
+      if (!body.ticketId) {
+        throw new ValidationError('ticketId is required');
+      }
+
+      // Clear GitHub link from ticket
+      await supabase
+        .from('tickets')
+        .update({
+          github_issue_number: null,
+          github_synced_at: null,
+        })
+        .eq('id', body.ticketId);
+
+      // Remove sync record
+      await adminClient
+        .from('github_syncs')
+        .delete()
+        .eq('ticket_id', body.ticketId);
+
+      return jsonResponse({ unlinked: true }, 200, requestId);
+    }
+
+    case 'sync_ticket': {
+      if (!body.ticketId) {
+        throw new ValidationError('ticketId is required');
+      }
+
+      // Fetch ticket with project info
+      const { data: ticket, error: ticketError } = await supabase
+        .from('tickets')
+        .select('*, projects!inner(*)')
+        .eq('id', body.ticketId)
+        .single();
+
+      if (ticketError || !ticket) {
+        throw new ValidationError('Ticket not found');
+      }
+
+      if (!ticket.github_issue_number) {
+        throw new ValidationError('Ticket is not linked to a GitHub issue');
+      }
+
+      const project = ticket.projects as { github_repo_url: string | null; github_repo_id: number | null };
+      if (!project.github_repo_url) {
+        throw new ValidationError('Project has no connected GitHub repository');
+      }
+
+      const { owner, repo } = parseRepoUrl(project.github_repo_url);
+
+      // Fetch issue from GitHub
+      const issue = await githubRequest<GitHubIssue>(
+        `/repos/${owner}/${repo}/issues/${ticket.github_issue_number}`,
+        token
+      );
+
+      // Determine new status based on GitHub issue state
+      let newStatus = ticket.status;
+      if (issue.state === 'closed' && ticket.status !== 'done' && ticket.status !== 'cancelled') {
+        newStatus = 'done';
+      } else if (issue.state === 'open' && ticket.status === 'done') {
+        newStatus = 'open';
+      }
+
+      const updated = newStatus !== ticket.status;
+
+      // Update ticket
+      await supabase
+        .from('tickets')
+        .update({
+          status: newStatus,
+          github_synced_at: new Date().toISOString(),
+        })
+        .eq('id', body.ticketId);
+
+      return jsonResponse({ 
+        synced: true, 
+        status: newStatus, 
+        updated 
+      }, 200, requestId);
+    }
+
+    case 'get_issues': {
+      if (!body.projectId) {
+        throw new ValidationError('projectId is required');
+      }
+
+      // Fetch project with repo info
+      const { data: project } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', body.projectId)
+        .single();
+
+      if (!project?.github_repo_url) {
+        throw new ValidationError('Project has no connected GitHub repository');
+      }
+
+      const { owner, repo } = parseRepoUrl(project.github_repo_url);
+      const state = body.state || 'open';
+
+      // Fetch issues from GitHub
+      const issues = await githubRequest<Array<{
+        number: number;
+        title: string;
+        state: string;
+        html_url: string;
+        created_at: string;
+      }>>(
+        `/repos/${owner}/${repo}/issues?state=${state}&per_page=100`,
+        token
+      );
+
+      // Filter out pull requests (they appear in issues API)
+      const filteredIssues = issues.filter((issue: Record<string, unknown>) => !('pull_request' in issue));
+
+      return jsonResponse({ issues: filteredIssues }, 200, requestId);
     }
 
     default:

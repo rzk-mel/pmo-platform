@@ -5,3 +5,7 @@ export * from './badge'
 export * from './avatar'
 export * from './progress'
 export * from './states'
+export * from './tabs'
+export * from './input'
+export * from './label'
+

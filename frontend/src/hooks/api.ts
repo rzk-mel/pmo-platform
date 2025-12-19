@@ -217,6 +217,26 @@ export function useArtifactSignoffs(artifactId: string) {
 }
 
 // Tickets
+export function useTickets() {
+  return useQuery({
+    queryKey: queryKeys.tickets,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tickets')
+        .select(`
+          *,
+          assignee:profiles!tickets_assignee_id_fkey(*),
+          reporter:profiles!tickets_reporter_id_fkey(*)
+        `)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+      
+      if (error) throw error
+      return data as Ticket[]
+    },
+  })
+}
+
 export function useProjectTickets(projectId: string) {
   return useQuery({
     queryKey: queryKeys.projectTickets(projectId),
