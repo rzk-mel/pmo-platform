@@ -47,7 +47,7 @@ interface EmptyStateProps {
   icon?: React.ReactNode
   title: string
   description?: string
-  action?: {
+  action?: React.ReactNode | {
     label: string
     onClick: () => void
   }
@@ -61,6 +61,22 @@ export function EmptyState({
   action,
   className,
 }: EmptyStateProps) {
+  const renderAction = () => {
+    if (!action) return null
+    
+    // If action is a ReactNode (not an object with label/onClick)
+    if (typeof action !== 'object' || !('label' in action)) {
+      return <div className="mt-4">{action}</div>
+    }
+    
+    // Object format with label and onClick
+    return (
+      <Button onClick={action.onClick} className="mt-4">
+        {action.label}
+      </Button>
+    )
+  }
+
   return (
     <div className={cn('flex flex-col items-center justify-center py-12', className)}>
       {icon || <Inbox className="h-12 w-12 text-muted-foreground" />}
@@ -70,11 +86,8 @@ export function EmptyState({
           {description}
         </p>
       )}
-      {action && (
-        <Button onClick={action.onClick} className="mt-4">
-          {action.label}
-        </Button>
-      )}
+      {renderAction()}
     </div>
   )
 }
+

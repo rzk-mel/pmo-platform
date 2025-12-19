@@ -158,7 +158,6 @@ export function KanbanBoardPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('')
   const [dragOverColumn, setDragOverColumn] = useState<TicketStatus | null>(null)
   const [draggedTicket, setDraggedTicket] = useState<Ticket | null>(null)
-  const [assigneeFilter, setAssigneeFilter] = useState<string>('')
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority | ''>('')
   
   const queryClient = useQueryClient()
@@ -172,7 +171,6 @@ export function KanbanBoardPage() {
 
   // Apply additional filters
   const filteredTickets = projectTickets.filter((t: Ticket) => {
-    if (assigneeFilter && t.assignee_id !== assigneeFilter) return false
     if (priorityFilter && t.priority !== priorityFilter) return false
     return true
   })
@@ -230,8 +228,6 @@ export function KanbanBoardPage() {
     setDragOverColumn(null)
   }
 
-  // Get unique assignees for filter
-  const assignees = [...new Set(projectTickets.map((t: Ticket) => t.assignee_id).filter(Boolean))]
 
   const isLoading = projectsLoading || ticketsLoading
 
