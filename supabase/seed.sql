@@ -100,7 +100,11 @@ INSERT INTO signoffs (id, artifact_id, assignee_id, status, due_date, comments, 
   ('sign-001', 'art-002', 'user-client-001', 'pending', '2024-12-20', NULL, 'user-pm-001'),
   ('sign-002', 'art-002', 'user-tl-001', 'approved', '2024-12-15', 'Technical content verified. Ready for client review.', 'user-pm-001'),
   ('sign-003', 'art-005', 'user-client-001', 'pending', '2024-12-25', NULL, 'user-pm-001'),
-  ('sign-004', 'art-006', 'user-client-001', 'approved', '2024-11-30', 'All deliverables accepted. Project completed successfully.', 'user-pm-001')
+  ('sign-004', 'art-006', 'user-client-001', 'approved', '2024-11-30', 'All deliverables accepted. Project completed successfully.', 'user-pm-001'),
+  -- Signoffs for Admin user (for testing)
+  ('sign-005', 'art-002', '96e0f8b6-6832-4135-936b-0535a1ed44b7', 'pending', '2024-12-28', NULL, 'user-pm-001'),
+  ('sign-006', 'art-003', '96e0f8b6-6832-4135-936b-0535a1ed44b7', 'pending', '2024-12-30', NULL, 'user-tl-001'),
+  ('sign-007', 'art-005', '96e0f8b6-6832-4135-936b-0535a1ed44b7', 'pending', '2025-01-05', NULL, 'user-pm-001')
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
