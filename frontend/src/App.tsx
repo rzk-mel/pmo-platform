@@ -17,6 +17,8 @@ import {
   InquiryFormPage,
   TicketFormPage,
   LoginPage,
+  GitHubSyncPage,
+  SettingsPage,
 } from '@/pages'
 
 function App() {
@@ -93,25 +95,6 @@ function App() {
   )
 }
 
-// Placeholder pages (to be implemented)
-function GitHubSyncPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">GitHub Sync</h1>
-      <p className="text-muted-foreground">Coming soon...</p>
-    </div>
-  )
-}
-
-function SettingsPage() {
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Settings</h1>
-      <p className="text-muted-foreground">Coming soon...</p>
-    </div>
-  )
-}
-
 function NotFoundPage() {
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -127,3 +110,4 @@ function NotFoundPage() {
 }
 
 export default App
+

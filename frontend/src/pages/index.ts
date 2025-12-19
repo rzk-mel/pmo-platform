@@ -12,6 +12,5 @@ export { InquiryDetailPage } from './InquiryDetail'
 export { InquiryFormPage } from './InquiryForm'
 export { TicketFormPage } from './TicketForm'
 export { LoginPage } from './Login'
-
-
-
+export { GitHubSyncPage } from './GitHubSync'
+export { SettingsPage } from './Settings'
