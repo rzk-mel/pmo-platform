@@ -16,6 +16,9 @@ import {
   Check,
   ExternalLink,
   Sparkles,
+  LayoutGrid,
+  Calendar,
+  Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth'
@@ -36,6 +39,9 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
   { label: 'Projects', href: '/projects', icon: FolderKanban },
+  { label: 'Kanban Board', href: '/kanban', icon: LayoutGrid },
+  { label: 'Gantt Chart', href: '/gantt', icon: Calendar },
+  { label: 'Resources', href: '/resources', icon: Users },
   { label: 'Artifacts', href: '/artifacts', icon: FileText },
   { label: 'Sign-offs', href: '/signoffs', icon: CheckSquare },
   { label: 'Inquiries', href: '/inquiries', icon: MessageCircle },

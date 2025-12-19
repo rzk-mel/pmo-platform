@@ -15,4 +15,8 @@ export { LoginPage } from './Login'
 export { GitHubSyncPage } from './GitHubSync'
 export { SettingsPage } from './Settings'
 export { AIAssistantPage } from './AIAssistant'
+export { KanbanBoardPage } from './KanbanBoard'
+export { GanttChartPage } from './GanttChart'
+export { ResourceAllocationPage } from './ResourceAllocation'
+
 

@@ -20,6 +20,9 @@ import {
   GitHubSyncPage,
   SettingsPage,
   AIAssistantPage,
+  KanbanBoardPage,
+  GanttChartPage,
+  ResourceAllocationPage,
 } from '@/pages'
 
 function App() {
@@ -59,6 +62,7 @@ function App() {
         
         {/* Tickets */}
         <Route path="/tickets/new" element={<TicketFormPage />} />
+        <Route path="/tickets/:id/edit" element={<TicketFormPage />} />
         
         {/* Sign-offs */}
         <Route path="/signoffs" element={<SignoffsPage />} />
@@ -68,6 +72,11 @@ function App() {
         <Route path="/inquiries" element={<InquiriesPage />} />
         <Route path="/inquiries/new" element={<InquiryFormPage />} />
         <Route path="/inquiries/:id" element={<InquiryDetailPage />} />
+        
+        {/* Project Management */}
+        <Route path="/kanban" element={<KanbanBoardPage />} />
+        <Route path="/gantt" element={<GanttChartPage />} />
+        <Route path="/resources" element={<ResourceAllocationPage />} />
         
         {/* GitHub Sync - requires developer+ role */}
         <Route
