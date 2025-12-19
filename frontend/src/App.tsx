@@ -6,6 +6,7 @@ import {
   DashboardPage,
   ProjectsPage,
   ProjectDetailPage,
+  ArtifactsListPage,
   ArtifactViewerPage,
   SignoffsPage,
   InquiriesPage,
@@ -37,6 +38,7 @@ function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
+        <Route path="/artifacts" element={<ArtifactsListPage />} />
         <Route path="/artifacts/:id" element={<ArtifactViewerPage />} />
         <Route path="/signoffs" element={<SignoffsPage />} />
         <Route path="/inquiries" element={<InquiriesPage />} />
