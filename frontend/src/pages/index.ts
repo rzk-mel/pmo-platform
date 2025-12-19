@@ -21,6 +21,7 @@ export { ResourceAllocationPage } from './ResourceAllocation'
 export { AnalyticsDashboardPage } from './AnalyticsDashboard'
 export { BudgetTrackingPage } from './BudgetTracking'
 export { AutomatedReportsPage } from './AutomatedReports'
+export { ActivityStreamPage } from './ActivityStream'
 
 
 

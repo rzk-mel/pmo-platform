@@ -22,6 +22,7 @@ import {
   BarChart3,
   DollarSign,
   FileBarChart,
+  Activity,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth'
@@ -48,6 +49,7 @@ const navItems: NavItem[] = [
   { label: 'Analytics', href: '/analytics', icon: BarChart3 },
   { label: 'Budget', href: '/budget', icon: DollarSign },
   { label: 'Reports', href: '/reports', icon: FileBarChart },
+  { label: 'Activity', href: '/activity', icon: Activity },
   { label: 'Artifacts', href: '/artifacts', icon: FileText },
   { label: 'Sign-offs', href: '/signoffs', icon: CheckSquare },
   { label: 'Inquiries', href: '/inquiries', icon: MessageCircle },

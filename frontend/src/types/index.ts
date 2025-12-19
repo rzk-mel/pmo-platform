@@ -290,6 +290,58 @@ export interface Notification {
   created_at: string;
 }
 
+// Collaboration types
+export type CommentEntityType = 'artifact' | 'ticket' | 'project' | 'inquiry';
+
+export interface Comment {
+  id: string;
+  content: string;
+  author_id: string;
+  entity_type: CommentEntityType;
+  entity_id: string;
+  parent_id: string | null;
+  mentions: string[];
+  is_edited: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  author?: Profile;
+  replies?: Comment[];
+}
+
+export type ActivityAction = 
+  | 'created'
+  | 'updated'
+  | 'deleted'
+  | 'commented'
+  | 'mentioned'
+  | 'status_changed'
+  | 'assigned'
+  | 'completed'
+  | 'approved'
+  | 'rejected'
+  | 'uploaded'
+  | 'synced'
+  | 'signed_off';
+
+export type ActivityEntityType = 'project' | 'artifact' | 'ticket' | 'inquiry' | 'signoff' | 'comment';
+
+export interface Activity {
+  id: string;
+  project_id: string;
+  actor_id: string | null;
+  action: ActivityAction;
+  entity_type: ActivityEntityType;
+  entity_id: string;
+  entity_name: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  // Joined data
+  actor?: Profile;
+  project?: Project;
+}
+
 // API response types
 export interface ApiResponse<T> {
   success: boolean;

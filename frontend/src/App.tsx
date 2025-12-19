@@ -26,6 +26,7 @@ import {
   AnalyticsDashboardPage,
   BudgetTrackingPage,
   AutomatedReportsPage,
+  ActivityStreamPage,
 } from '@/pages'
 
 function App() {
@@ -85,6 +86,9 @@ function App() {
         <Route path="/analytics" element={<AnalyticsDashboardPage />} />
         <Route path="/budget" element={<BudgetTrackingPage />} />
         <Route path="/reports" element={<AutomatedReportsPage />} />
+        
+        {/* Collaboration */}
+        <Route path="/activity" element={<ActivityStreamPage />} />
         
         {/* GitHub Sync - requires developer+ role */}
         <Route
