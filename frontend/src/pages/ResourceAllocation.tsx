@@ -5,7 +5,12 @@ import {
   Clock,
   TrendingUp,
   AlertTriangle,
-  FolderKanban,
+  Search,
+  ArrowUpDown,
+  LayoutGrid,
+  List,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import {
@@ -16,6 +21,8 @@ import {
   ErrorState,
   EmptyState,
   Label,
+  Button,
+  Input,
 } from '@/components/ui'
 import { useProjects, useTickets } from '@/hooks/api'
 import { useQuery } from '@tanstack/react-query'
@@ -36,8 +43,17 @@ interface TeamMemberWorkload {
   utilizationPercent: number
 }
 
+type SortField = 'name' | 'utilization' | 'tickets' | 'hours'
+type SortDirection = 'asc' | 'desc'
+
 export function ResourceAllocationPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
+  const [sortField, setSortField] = useState<SortField>('utilization')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [showOnlyOverloaded, setShowOnlyOverloaded] = useState(false)
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   
   const { data: projects, isLoading: projectsLoading } = useProjects()
   const { data: allTickets, isLoading: ticketsLoading, error: ticketsError } = useTickets()
@@ -119,11 +135,50 @@ export function ResourceAllocationPage() {
       w.overloaded = w.totalEstimated > HOURS_PER_WEEK
     })
 
-    // Sort by utilization (highest first)
     return Object.values(workloadByMember)
-      .filter(w => w.ticketCount > 0 || !selectedProjectId) // Show all members or only those with tickets
-      .sort((a, b) => b.utilizationPercent - a.utilizationPercent)
   }, [teamMembers, allTickets, projects, selectedProjectId])
+
+  // Filter and sort
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...workloadData]
+    
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(w => 
+        w.member.full_name.toLowerCase().includes(query) ||
+        w.member.email.toLowerCase().includes(query) ||
+        w.member.role.toLowerCase().includes(query)
+      )
+    }
+    
+    // Overloaded filter
+    if (showOnlyOverloaded) {
+      result = result.filter(w => w.overloaded)
+    }
+    
+    // Sort
+    result.sort((a, b) => {
+      let compare = 0
+      switch (sortField) {
+        case 'name':
+          compare = a.member.full_name.localeCompare(b.member.full_name)
+          break
+        case 'utilization':
+          compare = a.utilizationPercent - b.utilizationPercent
+          break
+        case 'tickets':
+          compare = a.ticketCount - b.ticketCount
+          break
+        case 'hours':
+          compare = a.totalEstimated - b.totalEstimated
+          break
+      }
+      return sortDirection === 'desc' ? -compare : compare
+    })
+    
+    return result
+  }, [workloadData, searchQuery, showOnlyOverloaded, sortField, sortDirection])
 
   // Stats
   const stats = useMemo(() => {
@@ -140,6 +195,27 @@ export function ResourceAllocationPage() {
 
     return { activeTasks, overloadedMembers, totalEstimated, avgUtilization }
   }, [workloadData, allTickets, selectedProjectId])
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('desc')
+    }
+  }
+
+  const toggleRowExpand = (id: string) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
 
   const isLoading = projectsLoading || ticketsLoading || membersLoading
 
@@ -159,25 +235,13 @@ export function ResourceAllocationPage() {
     )
   }
 
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) return <ArrowUpDown className="h-4 w-4 opacity-50" />
+    return sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+  }
+
   return (
     <PageLayout title="Resource Allocation">
-      {/* Filter */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <Label>Project</Label>
-          <select
-            value={selectedProjectId}
-            onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="px-3 py-2 border rounded-lg bg-background text-sm min-w-[200px]"
-          >
-            <option value="">All Projects</option>
-            {projects?.map((p: Project) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       {/* Stats Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card>
@@ -238,95 +302,253 @@ export function ResourceAllocationPage() {
                 )}
               </div>
               <div>
-                <p className="text-2xl font-bold">{stats.avgUtilization}%</p>
-                <p className="text-sm text-muted-foreground">Avg Utilization</p>
+                <p className="text-2xl font-bold">{stats.overloadedMembers}</p>
+                <p className="text-sm text-muted-foreground">Overloaded</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Team Workload */}
-      {workloadData.length === 0 ? (
+      {/* Filters & Controls */}
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        <div className="relative flex-1 min-w-[200px] max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by name, email, or role..."
+            className="pl-9"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Label>Project</Label>
+          <select
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProjectId(e.target.value)}
+            className="px-3 py-2 border rounded-lg bg-background text-sm"
+          >
+            <option value="">All Projects</option>
+            {projects?.map((p: Project) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="overloaded"
+            checked={showOnlyOverloaded}
+            onChange={(e) => setShowOnlyOverloaded(e.target.checked)}
+            className="rounded"
+          />
+          <Label htmlFor="overloaded" className="text-sm cursor-pointer">
+            Overloaded only ({stats.overloadedMembers})
+          </Label>
+        </div>
+
+        <div className="flex items-center gap-1 ml-auto border rounded-lg p-1">
+          <Button
+            variant={viewMode === 'table' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('table')}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'cards' ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('cards')}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Results count */}
+      <div className="text-sm text-muted-foreground mb-4">
+        Showing {filteredAndSortedData.length} of {workloadData.length} team members
+      </div>
+
+      {/* Data Display */}
+      {filteredAndSortedData.length === 0 ? (
         <EmptyState
           icon={<Users className="h-12 w-12 text-muted-foreground" />}
-          title="No team data"
-          description="Team members with assigned tickets will appear here"
+          title={searchQuery ? "No matching members" : "No team data"}
+          description={searchQuery ? "Try adjusting your search" : "Team members with assigned tickets will appear here"}
         />
-      ) : (
-        <div className="grid gap-4">
-          {workloadData.map((workload) => (
-            <Card key={workload.member.id}>
-              <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  {/* Member Info */}
-                  <div className="flex items-center gap-3 min-w-[200px]">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={workload.member.avatar_url || undefined} />
-                      <AvatarFallback>{getInitials(workload.member.full_name)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{workload.member.full_name}</p>
-                      <p className="text-sm text-muted-foreground capitalize">
-                        {workload.member.role.replace('_', ' ')}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Capacity Bar */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-muted-foreground">
-                        {workload.totalEstimated}h / {HOURS_PER_WEEK}h capacity
-                      </span>
-                      <span className={cn(
-                        "text-sm font-medium",
-                        workload.overloaded ? "text-red-500" : "text-green-500"
-                      )}>
-                        {workload.utilizationPercent}%
-                      </span>
-                    </div>
-                    <div className="h-3 bg-muted rounded-full overflow-hidden">
-                      <div
+      ) : viewMode === 'table' ? (
+        /* TABLE VIEW */
+        <div className="border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="text-left p-3 font-medium">
+                    <button onClick={() => toggleSort('name')} className="flex items-center gap-1 hover:text-primary">
+                      Team Member <SortIcon field="name" />
+                    </button>
+                  </th>
+                  <th className="text-left p-3 font-medium hidden sm:table-cell">Role</th>
+                  <th className="text-center p-3 font-medium">
+                    <button onClick={() => toggleSort('tickets')} className="flex items-center gap-1 hover:text-primary mx-auto">
+                      Tasks <SortIcon field="tickets" />
+                    </button>
+                  </th>
+                  <th className="text-center p-3 font-medium">
+                    <button onClick={() => toggleSort('hours')} className="flex items-center gap-1 hover:text-primary mx-auto">
+                      Hours <SortIcon field="hours" />
+                    </button>
+                  </th>
+                  <th className="text-center p-3 font-medium min-w-[200px]">
+                    <button onClick={() => toggleSort('utilization')} className="flex items-center gap-1 hover:text-primary mx-auto">
+                      Utilization <SortIcon field="utilization" />
+                    </button>
+                  </th>
+                  <th className="w-10 p-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAndSortedData.map((workload) => {
+                  const isExpanded = expandedRows.has(workload.member.id)
+                  const hasProjects = Object.keys(workload.ticketsByProject).length > 0
+                  
+                  return (
+                    <>
+                      <tr 
+                        key={workload.member.id} 
                         className={cn(
-                          "h-full transition-all",
-                          workload.utilizationPercent > 100 ? "bg-red-500" :
-                          workload.utilizationPercent > 80 ? "bg-yellow-500" : "bg-green-500"
+                          "border-t hover:bg-muted/30 transition-colors",
+                          workload.overloaded && "bg-red-50 dark:bg-red-900/10"
                         )}
-                        style={{ width: `${Math.min(workload.utilizationPercent, 100)}%` }}
-                      />
-                    </div>
+                      >
+                        <td className="p-3">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={workload.member.avatar_url || undefined} />
+                              <AvatarFallback className="text-xs">{getInitials(workload.member.full_name)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium text-sm">{workload.member.full_name}</p>
+                              <p className="text-xs text-muted-foreground hidden sm:block">{workload.member.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-3 hidden sm:table-cell">
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {workload.member.role.replace('_', ' ')}
+                          </Badge>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="font-medium">{workload.ticketCount}</span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="font-medium">{workload.totalEstimated}h</span>
+                          <span className="text-muted-foreground">/{HOURS_PER_WEEK}h</span>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full transition-all",
+                                  workload.utilizationPercent > 100 ? "bg-red-500" :
+                                  workload.utilizationPercent > 80 ? "bg-yellow-500" : "bg-green-500"
+                                )}
+                                style={{ width: `${Math.min(workload.utilizationPercent, 100)}%` }}
+                              />
+                            </div>
+                            <span className={cn(
+                              "text-sm font-medium w-12 text-right",
+                              workload.overloaded ? "text-red-500" : "text-green-500"
+                            )}>
+                              {workload.utilizationPercent}%
+                            </span>
+                            {workload.overloaded && (
+                              <AlertTriangle className="h-4 w-4 text-red-500" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          {hasProjects && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleRowExpand(workload.member.id)}
+                            >
+                              {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                      {isExpanded && hasProjects && (
+                        <tr key={`${workload.member.id}-expanded`}>
+                          <td colSpan={6} className="p-3 bg-muted/20">
+                            <div className="flex flex-wrap gap-2 pl-11">
+                              {Object.entries(workload.ticketsByProject).map(([projectId, data]) => (
+                                <Badge key={projectId} variant="secondary" className="text-xs">
+                                  {data.projectName}: {data.count} tasks ({data.hours}h)
+                                </Badge>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* CARDS VIEW */
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredAndSortedData.map((workload) => (
+            <Card key={workload.member.id} className={cn(workload.overloaded && "border-red-300 dark:border-red-800")}>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={workload.member.avatar_url || undefined} />
+                    <AvatarFallback>{getInitials(workload.member.full_name)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{workload.member.full_name}</p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {workload.member.role.replace('_', ' ')}
+                    </p>
                   </div>
-
-                  {/* Stats */}
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Briefcase className="h-4 w-4 text-muted-foreground" />
-                      <span>{workload.ticketCount} tasks</span>
-                    </div>
-                    {workload.overloaded && (
-                      <Badge variant="destructive" className="flex items-center gap-1">
-                        <AlertTriangle className="h-3 w-3" />
-                        Overloaded
-                      </Badge>
-                    )}
-                  </div>
+                  {workload.overloaded && (
+                    <AlertTriangle className="h-5 w-5 text-red-500 shrink-0" />
+                  )}
                 </div>
 
-                {/* Projects Breakdown */}
-                {Object.keys(workload.ticketsByProject).length > 0 && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm font-medium mb-2">Project Breakdown:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(workload.ticketsByProject).map(([projectId, data]) => (
-                        <Badge key={projectId} variant="outline" className="flex items-center gap-1">
-                          <FolderKanban className="h-3 w-3" />
-                          {data.projectName}: {data.count} tasks ({data.hours}h)
-                        </Badge>
-                      ))}
-                    </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{workload.ticketCount} tasks</span>
+                    <span className="font-medium">{workload.totalEstimated}h / {HOURS_PER_WEEK}h</span>
                   </div>
-                )}
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full transition-all",
+                        workload.utilizationPercent > 100 ? "bg-red-500" :
+                        workload.utilizationPercent > 80 ? "bg-yellow-500" : "bg-green-500"
+                      )}
+                      style={{ width: `${Math.min(workload.utilizationPercent, 100)}%` }}
+                    />
+                  </div>
+                  <div className="text-right">
+                    <span className={cn(
+                      "text-sm font-medium",
+                      workload.overloaded ? "text-red-500" : "text-green-500"
+                    )}>
+                      {workload.utilizationPercent}%
+                    </span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ))}
