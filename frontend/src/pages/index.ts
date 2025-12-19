@@ -14,3 +14,5 @@ export { TicketFormPage } from './TicketForm'
 export { LoginPage } from './Login'
 export { GitHubSyncPage } from './GitHubSync'
 export { SettingsPage } from './Settings'
+export { AIAssistantPage } from './AIAssistant'
+

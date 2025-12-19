@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Check,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth'
@@ -38,6 +39,7 @@ const navItems: NavItem[] = [
   { label: 'Artifacts', href: '/artifacts', icon: FileText },
   { label: 'Sign-offs', href: '/signoffs', icon: CheckSquare },
   { label: 'Inquiries', href: '/inquiries', icon: MessageCircle },
+  { label: 'AI Assistant', href: '/ai', icon: Sparkles },
   { label: 'GitHub Sync', href: '/github', icon: Github, roles: ['project_manager', 'tech_lead', 'developer'] },
   { label: 'Settings', href: '/settings', icon: Settings, roles: ['org_admin', 'super_admin'] },
 ]

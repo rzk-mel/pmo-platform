@@ -19,6 +19,7 @@ import {
   LoginPage,
   GitHubSyncPage,
   SettingsPage,
+  AIAssistantPage,
 } from '@/pages'
 
 function App() {
@@ -87,6 +88,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
+        {/* AI Assistant */}
+        <Route path="/ai" element={<AIAssistantPage />} />
       </Route>
 
       {/* 404 catch-all */}
