@@ -17,7 +17,7 @@ import {
 import {
   getDashScopeClient,
   ChatMessage,
-} from '../_shared/dashscope.ts';
+} from '../_shared/gemini.ts';
 import {
   getPromptTemplate,
   fillPromptTemplate,

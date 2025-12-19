@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
-import ReactMarkdown from 'react-markdown'
+import { useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft,
   FileText,
   Download,
-  Edit2,
   CheckCircle,
   XCircle,
   Clock,
@@ -33,14 +31,12 @@ import {
   formatRelative,
   formatPercentage,
   getInitials,
-  canApprove,
 } from '@/lib/utils'
-import { approveArtifact, rejectArtifact, createSignoffRequest } from '@/lib/api'
+import { approveArtifact, rejectArtifact } from '@/lib/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function ArtifactViewerPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user, hasMinimumRole } = useAuthStore()
 
@@ -50,7 +46,7 @@ export function ArtifactViewerPage() {
   const [rejectReason, setRejectReason] = useState('')
   const [showRejectModal, setShowRejectModal] = useState(false)
 
-  const userCanApprove = canApprove(user?.role || 'viewer')
+  // User can approve is determined by userSignoff and canTakeAction
   const userSignoff = signoffs?.find(
     s => s.assignee_id === user?.id || s.delegated_to_id === user?.id
   )

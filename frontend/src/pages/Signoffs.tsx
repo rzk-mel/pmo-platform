@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import {
   CheckCircle,
   XCircle,
@@ -12,16 +12,14 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   LoadingState,
   ErrorState,
   EmptyState,
 } from '@/components/ui'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+// Avatar removed - unused
 import { useMySignoffs } from '@/hooks/api'
-import { useAuthStore } from '@/stores/auth'
-import { formatDate, formatRelative, getInitials } from '@/lib/utils'
-import { approveArtifact, rejectArtifact } from '@/lib/api'
+import { formatDate } from '@/lib/utils'
+import { approveArtifact } from '@/lib/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Signoff, Artifact, Project } from '@/types'
 

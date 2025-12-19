@@ -18,11 +18,11 @@ These are automatically provided by Supabase:
 | `SUPABASE_ANON_KEY`         | Public anon key for client auth | `eyJhbG...`               |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role key (bypasses RLS) | `eyJhbG...`               |
 
-### DashScope (Qwen AI)
+### Google Gemini AI
 
-| Variable            | Description               | Required By                                                            |
-| ------------------- | ------------------------- | ---------------------------------------------------------------------- |
-| `DASHSCOPE_API_KEY` | Alibaba DashScope API key | ai-processor, document-extraction, voice-transcription, blog-generator |
+| Variable         | Description              | Required By                                                            |
+| ---------------- | ------------------------ | ---------------------------------------------------------------------- |
+| `GEMINI_API_KEY` | Google AI Studio API key | ai-processor, document-extraction, voice-transcription, blog-generator |
 
 ### GitHub Integration
 
@@ -52,7 +52,7 @@ These are automatically provided by Supabase:
 
 ```bash
 # Set individual secrets
-supabase secrets set DASHSCOPE_API_KEY=your_key_here
+supabase secrets set GEMINI_API_KEY=your_key_here
 supabase secrets set GITHUB_PAT=your_pat_here
 supabase secrets set GITHUB_WEBHOOK_SECRET=your_secret_here
 
@@ -68,7 +68,7 @@ Create `.env.local` in `supabase/functions/`:
 SUPABASE_URL=http://localhost:54321
 SUPABASE_ANON_KEY=your_local_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_local_service_key
-DASHSCOPE_API_KEY=your_dashscope_key
+GEMINI_API_KEY=your_gemini_api_key
 GITHUB_PAT=your_github_pat
 LOG_LEVEL=debug
 ```
@@ -90,6 +90,6 @@ LOG_LEVEL=debug
 - `read:org` - Read organization info
 - `write:discussion` - For issue comments
 
-### DashScope API Key
+### Gemini API Key
 
-Obtain from: https://dashscope.console.aliyun.com/
+Obtain from: https://aistudio.google.com/app/apikey

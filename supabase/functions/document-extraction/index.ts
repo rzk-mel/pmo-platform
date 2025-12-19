@@ -14,7 +14,7 @@ import {
   createSupabaseAdmin,
   getCurrentUser,
 } from '../_shared/supabase.ts';
-import { getDashScopeClient } from '../_shared/dashscope.ts';
+import { getDashScopeClient } from '../_shared/gemini.ts';
 import {
   ValidationError,
   AuthenticationError,
@@ -102,8 +102,8 @@ async function extractTextFromFile(
     case 'image/png':
     case 'image/jpeg':
     case 'image/webp': {
-      // Use DashScope Vision for OCR
-      logger.info('Using DashScope Vision for image OCR');
+      // Use Google Gemini Vision for OCR
+      logger.info('Using Gemini Vision for image OCR');
       const base64 = btoa(
         new Uint8Array(await fileData.arrayBuffer()).reduce(
           (data, byte) => data + String.fromCharCode(byte),
@@ -118,7 +118,7 @@ async function extractTextFromFile(
           content: `Extract all text from this image. Return only the extracted text, nothing else. Image data: data:${mimeType};base64,${base64}`,
         },
       ], {
-        model: 'qwen-vl-plus' as 'qwen-plus', // Vision model
+        model: 'gemini-1.5-flash', // Vision-capable model
         maxTokens: 4000,
       });
 

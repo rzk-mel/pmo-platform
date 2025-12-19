@@ -89,7 +89,7 @@ pmo-platform/
 | ----------------- | ---------------------------------------------------- |
 | **Frontend**      | React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui  |
 | **Backend**       | Supabase (PostgreSQL, Edge Functions, Auth, Storage) |
-| **AI**            | DashScope (Qwen) for generation + embeddings         |
+| **AI**            | Google Gemini for generation + embeddings            |
 | **Vector Search** | pgvector for RAG                                     |
 | **Integration**   | GitHub REST API                                      |
 | **Deployment**    | Netlify (frontend), Supabase (backend)               |
@@ -118,7 +118,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbG...
 ### Edge Functions (set via CLI)
 
 ```bash
-supabase secrets set DASHSCOPE_API_KEY=xxx
+supabase secrets set GEMINI_API_KEY=xxx
 supabase secrets set GITHUB_PAT=xxx
 supabase secrets set GITHUB_WEBHOOK_SECRET=xxx
 ```

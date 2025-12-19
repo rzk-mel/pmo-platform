@@ -1,15 +1,9 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft,
-  Calendar,
-  Users,
   FileText,
   GitBranch,
-  Settings,
   Play,
-  Pause,
-  CheckCircle,
-  XCircle,
 } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import {
@@ -24,7 +18,7 @@ import {
   ErrorState,
   EmptyState,
 } from '@/components/ui'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+// Avatar removed - unused
 import { useProject, useProjectArtifacts, useProjectTickets, useGitHubSync } from '@/hooks/api'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -37,7 +31,6 @@ import {
   PRIORITY_COLORS,
   formatDate,
   formatRelative,
-  getInitials,
   canEditProject,
 } from '@/lib/utils'
 import { transitionProject, syncFromGitHub } from '@/lib/api'
@@ -58,9 +51,8 @@ const NEXT_STATUS: Partial<Record<ProjectStatus, ProjectStatus>> = {
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { user, hasMinimumRole } = useAuthStore()
+  const { user } = useAuthStore()
 
   const { data: project, isLoading, error } = useProject(id!)
   const { data: artifacts } = useProjectArtifacts(id!)

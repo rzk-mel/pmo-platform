@@ -32,6 +32,7 @@ yarn-error.log*
 
 # Supabase
 .supabase/
+.temp/
 
 # Netlify
 .netlify/

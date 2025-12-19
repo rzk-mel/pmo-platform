@@ -13,7 +13,7 @@ import {
 } from '@/pages'
 
 function App() {
-  const { initialize, isLoading } = useAuthStore()
+  const { initialize } = useAuthStore()
 
   // Initialize auth on app load
   useEffect(() => {

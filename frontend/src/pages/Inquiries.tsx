@@ -6,15 +6,12 @@ import {
   Search,
   CheckCircle,
   Clock,
-  User,
   ArrowRight,
 } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   LoadingState,
@@ -126,7 +123,7 @@ function InquiryCard({ inquiry }: { inquiry: Inquiry }) {
 }
 
 export function InquiriesPage() {
-  const { user, hasMinimumRole } = useAuthStore()
+  const { hasMinimumRole } = useAuthStore()
   const { data: inquiries, isLoading, error, refetch } = useInquiries()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<InquiryStatus | 'all'>('all')

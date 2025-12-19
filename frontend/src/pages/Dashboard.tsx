@@ -118,7 +118,7 @@ export function DashboardPage() {
         />
         <StatCard
           title="Total Artifacts"
-          value={projects?.reduce((acc, p) => acc + (p.phase_metadata?.artifactCount || 0), 0) || 0}
+          value={projects?.reduce((acc: number, p) => acc + ((p.phase_metadata as { artifactCount?: number })?.artifactCount || 0), 0) || 0}
           icon={FileText}
           href="/artifacts"
         />

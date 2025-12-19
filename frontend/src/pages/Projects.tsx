@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Plus, Search, Filter, MoreVertical } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import {
   Card,

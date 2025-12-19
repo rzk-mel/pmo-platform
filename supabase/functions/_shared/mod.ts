@@ -4,6 +4,6 @@
 export * from './logger.ts';
 export * from './errors.ts';
 export * from './supabase.ts';
-export * from './dashscope.ts';
+export * from './gemini.ts';
 export * from './response.ts';
 export * from './prompts.ts';

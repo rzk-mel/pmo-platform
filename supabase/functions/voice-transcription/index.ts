@@ -13,7 +13,7 @@ import {
   createSupabaseClient,
   getCurrentUser,
 } from '../_shared/supabase.ts';
-import { getDashScopeClient, ChatMessage } from '../_shared/dashscope.ts';
+import { getDashScopeClient, ChatMessage } from '../_shared/gemini.ts';
 import { getPromptTemplate, fillPromptTemplate } from '../_shared/prompts.ts';
 import {
   ValidationError,
