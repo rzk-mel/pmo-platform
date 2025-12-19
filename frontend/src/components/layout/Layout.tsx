@@ -19,6 +19,9 @@ import {
   LayoutGrid,
   Calendar,
   Users,
+  BarChart3,
+  DollarSign,
+  FileBarChart,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth'
@@ -42,6 +45,9 @@ const navItems: NavItem[] = [
   { label: 'Kanban Board', href: '/kanban', icon: LayoutGrid },
   { label: 'Gantt Chart', href: '/gantt', icon: Calendar },
   { label: 'Resources', href: '/resources', icon: Users },
+  { label: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { label: 'Budget', href: '/budget', icon: DollarSign },
+  { label: 'Reports', href: '/reports', icon: FileBarChart },
   { label: 'Artifacts', href: '/artifacts', icon: FileText },
   { label: 'Sign-offs', href: '/signoffs', icon: CheckSquare },
   { label: 'Inquiries', href: '/inquiries', icon: MessageCircle },

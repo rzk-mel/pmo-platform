@@ -18,5 +18,9 @@ export { AIAssistantPage } from './AIAssistant'
 export { KanbanBoardPage } from './KanbanBoard'
 export { GanttChartPage } from './GanttChart'
 export { ResourceAllocationPage } from './ResourceAllocation'
+export { AnalyticsDashboardPage } from './AnalyticsDashboard'
+export { BudgetTrackingPage } from './BudgetTracking'
+export { AutomatedReportsPage } from './AutomatedReports'
+
 
 

@@ -23,6 +23,9 @@ import {
   KanbanBoardPage,
   GanttChartPage,
   ResourceAllocationPage,
+  AnalyticsDashboardPage,
+  BudgetTrackingPage,
+  AutomatedReportsPage,
 } from '@/pages'
 
 function App() {
@@ -77,6 +80,11 @@ function App() {
         <Route path="/kanban" element={<KanbanBoardPage />} />
         <Route path="/gantt" element={<GanttChartPage />} />
         <Route path="/resources" element={<ResourceAllocationPage />} />
+        
+        {/* Analytics & Reporting */}
+        <Route path="/analytics" element={<AnalyticsDashboardPage />} />
+        <Route path="/budget" element={<BudgetTrackingPage />} />
+        <Route path="/reports" element={<AutomatedReportsPage />} />
         
         {/* GitHub Sync - requires developer+ role */}
         <Route
