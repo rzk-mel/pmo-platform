@@ -8,7 +8,7 @@ import { LoadingState } from '@/components/ui/states'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
-import type { Project, ProjectStatus } from '@/types'
+import type { Project, ProjectStatus, Profile } from '@/types'
 
 const PROJECT_STATUSES: { value: ProjectStatus; label: string }[] = [
   { value: 'draft', label: 'Draft' },
@@ -32,6 +32,8 @@ interface ProjectFormData {
   target_end_date: string
   estimated_budget: string
   currency: string
+  project_manager_id: string
+  tech_lead_id: string
 }
 
 const initialFormData: ProjectFormData = {
@@ -43,6 +45,8 @@ const initialFormData: ProjectFormData = {
   target_end_date: '',
   estimated_budget: '',
   currency: 'IDR',
+  project_manager_id: '',
+  tech_lead_id: '',
 }
 
 export function ProjectFormPage() {
@@ -54,6 +58,20 @@ export function ProjectFormPage() {
 
   const [formData, setFormData] = useState<ProjectFormData>(initialFormData)
   const [error, setError] = useState<string | null>(null)
+
+  // Fetch team members for assignment
+  const { data: teamMembers } = useQuery({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('is_active', true)
+        .order('full_name')
+      if (error) throw error
+      return data as Profile[]
+    },
+  })
 
   // Fetch existing project for edit
   const { data: project, isLoading } = useQuery({
@@ -83,6 +101,8 @@ export function ProjectFormPage() {
         target_end_date: project.target_end_date || '',
         estimated_budget: project.estimated_budget?.toString() || '',
         currency: project.currency || 'IDR',
+        project_manager_id: project.project_manager_id || '',
+        tech_lead_id: project.tech_lead_id || '',
       })
     }
   }, [project])
@@ -101,6 +121,8 @@ export function ProjectFormPage() {
           target_end_date: data.target_end_date || null,
           estimated_budget: data.estimated_budget ? parseFloat(data.estimated_budget) : null,
           currency: data.currency,
+          project_manager_id: data.project_manager_id || null,
+          tech_lead_id: data.tech_lead_id || null,
           org_id: user?.org_id,
           created_by: user?.id,
         })
@@ -151,6 +173,8 @@ export function ProjectFormPage() {
           target_end_date: data.target_end_date || null,
           estimated_budget: data.estimated_budget ? parseFloat(data.estimated_budget) : null,
           currency: data.currency,
+          project_manager_id: data.project_manager_id || null,
+          tech_lead_id: data.tech_lead_id || null,
         })
         .eq('id', id)
 
@@ -276,6 +300,35 @@ export function ProjectFormPage() {
                     rows={4}
                     className="w-full px-3 py-2 border rounded-lg bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Project Manager</label>
+                    <select
+                      value={formData.project_manager_id}
+                      onChange={(e) => handleChange('project_manager_id', e.target.value)}
+                      className="w-full px-3 py-2 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value="">Unassigned</option>
+                      {teamMembers?.filter(m => ['project_manager', 'org_admin', 'super_admin'].includes(m.role)).map(member => (
+                        <option key={member.id} value={member.id}>{member.full_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Tech Lead</label>
+                    <select
+                      value={formData.tech_lead_id}
+                      onChange={(e) => handleChange('tech_lead_id', e.target.value)}
+                      className="w-full px-3 py-2 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                      <option value="">Unassigned</option>
+                      {teamMembers?.filter(m => ['tech_lead', 'org_admin', 'super_admin'].includes(m.role)).map(member => (
+                        <option key={member.id} value={member.id}>{member.full_name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </CardContent>
             </Card>

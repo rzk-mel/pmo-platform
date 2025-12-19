@@ -9,10 +9,13 @@ import {
   ProjectFormPage,
   ArtifactsListPage,
   ArtifactViewerPage,
+  ArtifactFormPage,
   SignoffsPage,
   SignoffDetailPage,
   InquiriesPage,
   InquiryDetailPage,
+  InquiryFormPage,
+  TicketFormPage,
   LoginPage,
 } from '@/pages'
 
@@ -48,7 +51,11 @@ function App() {
         
         {/* Artifacts */}
         <Route path="/artifacts" element={<ArtifactsListPage />} />
+        <Route path="/artifacts/new" element={<ArtifactFormPage />} />
         <Route path="/artifacts/:id" element={<ArtifactViewerPage />} />
+        
+        {/* Tickets */}
+        <Route path="/tickets/new" element={<TicketFormPage />} />
         
         {/* Sign-offs */}
         <Route path="/signoffs" element={<SignoffsPage />} />
@@ -56,6 +63,7 @@ function App() {
         
         {/* Inquiries */}
         <Route path="/inquiries" element={<InquiriesPage />} />
+        <Route path="/inquiries/new" element={<InquiryFormPage />} />
         <Route path="/inquiries/:id" element={<InquiryDetailPage />} />
         
         {/* GitHub Sync - requires developer+ role */}

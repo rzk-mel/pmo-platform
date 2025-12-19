@@ -146,10 +146,12 @@ export function InquiriesPage() {
       title="Inquiries"
       actions={
         canCreate && (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Inquiry
-          </Button>
+          <Link to="/inquiries/new">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              New Inquiry
+            </Button>
+          </Link>
         )
       }
     >

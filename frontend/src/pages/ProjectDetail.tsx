@@ -1,9 +1,10 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
-  FileText,
   GitBranch,
   Play,
+  Plus,
+  Edit,
 } from 'lucide-react'
 import { PageLayout } from '@/components/layout'
 import {
@@ -51,6 +52,7 @@ const NEXT_STATUS: Partial<Record<ProjectStatus, ProjectStatus>> = {
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { user } = useAuthStore()
 
@@ -116,11 +118,17 @@ export function ProjectDetailPage() {
       title={project.name}
       actions={
         <div className="flex gap-2">
+          {canEdit && (
+            <Button variant="outline" onClick={() => navigate(`/projects/${id}/edit`)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+          )}
           {project.github_repo_url && (
             <Button
               variant="outline"
               onClick={() => syncMutation.mutate(id!)}
-              isLoading={syncMutation.isPending}
+              disabled={syncMutation.isPending}
             >
               <GitBranch className="h-4 w-4 mr-2" />
               Sync GitHub
@@ -129,7 +137,7 @@ export function ProjectDetailPage() {
           {canEdit && nextStatus && (
             <Button
               onClick={() => transitionMutation.mutate({ projectId: id!, status: nextStatus })}
-              isLoading={transitionMutation.isPending}
+              disabled={transitionMutation.isPending}
             >
               <Play className="h-4 w-4 mr-2" />
               Move to {PROJECT_STATUS_LABELS[nextStatus]}
@@ -211,10 +219,12 @@ export function ProjectDetailPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Artifacts</CardTitle>
             {canEdit && (
-              <Button size="sm" variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                New Artifact
-              </Button>
+              <Link to={`/artifacts/new?projectId=${id}`}>
+                <Button size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Artifact
+                </Button>
+              </Link>
             )}
           </CardHeader>
           <CardContent>
@@ -254,9 +264,12 @@ export function ProjectDetailPage() {
               Tickets ({doneTickets}/{totalTickets})
             </CardTitle>
             {canEdit && (
-              <Button size="sm" variant="outline">
-                New Ticket
-              </Button>
+              <Link to={`/tickets/new?projectId=${id}`}>
+                <Button size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Ticket
+                </Button>
+              </Link>
             )}
           </CardHeader>
           <CardContent>
