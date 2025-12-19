@@ -16,23 +16,12 @@ import {
   ErrorState,
   EmptyState,
 } from '@/components/ui'
-// Avatar removed - unused
 import { useMySignoffs } from '@/hooks/api'
 import { formatDate } from '@/lib/utils'
-import { approveArtifact } from '@/lib/api'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Signoff, Artifact, Project } from '@/types'
 
 function SignoffCard({ signoff }: { signoff: Signoff }) {
-  const queryClient = useQueryClient()
   const artifact = signoff.artifact as Artifact & { project?: Project }
-
-  const approveMutation = useMutation({
-    mutationFn: () => approveArtifact(signoff.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['signoffs', 'mine'] })
-    },
-  })
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -74,26 +63,24 @@ function SignoffCard({ signoff }: { signoff: Signoff }) {
         {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t">
           <Link
-            to={`/artifacts/${artifact?.id}`}
+            to={`/signoffs/${signoff.id}`}
             className="text-sm text-primary hover:underline flex items-center gap-1"
           >
-            View Full Document <ArrowUpRight className="h-4 w-4" />
+            View & Decide <ArrowUpRight className="h-4 w-4" />
           </Link>
           <div className="flex gap-2">
-            <Link to={`/artifacts/${artifact?.id}`}>
+            <Link to={`/signoffs/${signoff.id}`}>
               <Button variant="outline" size="sm">
                 <XCircle className="h-4 w-4 mr-2" />
                 Reject
               </Button>
             </Link>
-            <Button
-              size="sm"
-              onClick={() => approveMutation.mutate()}
-              isLoading={approveMutation.isPending}
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Approve
-            </Button>
+            <Link to={`/signoffs/${signoff.id}`}>
+              <Button size="sm">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Approve
+              </Button>
+            </Link>
           </div>
         </div>
       </CardContent>

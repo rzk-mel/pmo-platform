@@ -334,6 +334,26 @@ CREATE INDEX IF NOT EXISTS idx_inquiries_project ON inquiries(project_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
 
 -- ============================================
+-- Activity Logs (Audit Trail)
+-- ============================================
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  user_id TEXT REFERENCES profiles(id),
+  action TEXT NOT NULL,  -- 'create', 'update', 'delete', 'approve', 'reject', 'answer', etc.
+  entity_type TEXT NOT NULL,  -- 'project', 'artifact', 'inquiry', 'signoff', etc.
+  entity_id TEXT NOT NULL,
+  entity_name TEXT,
+  old_values JSONB,
+  new_values JSONB,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_activity_logs_user ON activity_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON activity_logs(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_created ON activity_logs(created_at DESC);
+
+-- ============================================
 -- Updated At Trigger
 -- ============================================
 CREATE OR REPLACE FUNCTION update_updated_at()
