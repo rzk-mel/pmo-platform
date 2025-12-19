@@ -34,6 +34,7 @@ interface ProjectFormData {
   currency: string
   project_manager_id: string
   tech_lead_id: string
+  github_repo_url: string
 }
 
 const initialFormData: ProjectFormData = {
@@ -47,6 +48,7 @@ const initialFormData: ProjectFormData = {
   currency: 'IDR',
   project_manager_id: '',
   tech_lead_id: '',
+  github_repo_url: '',
 }
 
 export function ProjectFormPage() {
@@ -103,6 +105,7 @@ export function ProjectFormPage() {
         currency: project.currency || 'IDR',
         project_manager_id: project.project_manager_id || '',
         tech_lead_id: project.tech_lead_id || '',
+        github_repo_url: project.github_repo_url || '',
       })
     }
   }, [project])
@@ -123,6 +126,7 @@ export function ProjectFormPage() {
           currency: data.currency,
           project_manager_id: data.project_manager_id || null,
           tech_lead_id: data.tech_lead_id || null,
+          github_repo_url: data.github_repo_url || null,
           org_id: user?.org_id,
           created_by: user?.id,
         })
@@ -175,6 +179,7 @@ export function ProjectFormPage() {
           currency: data.currency,
           project_manager_id: data.project_manager_id || null,
           tech_lead_id: data.tech_lead_id || null,
+          github_repo_url: data.github_repo_url || null,
         })
         .eq('id', id)
 
@@ -382,6 +387,20 @@ export function ProjectFormPage() {
                       <option value="EUR">EUR</option>
                     </select>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">GitHub Repository URL</label>
+                  <input
+                    type="url"
+                    value={formData.github_repo_url}
+                    onChange={(e) => handleChange('github_repo_url', e.target.value)}
+                    placeholder="https://github.com/owner/repo"
+                    className="w-full px-3 py-2 border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Connect this project to a GitHub repository for issue sync
+                  </p>
                 </div>
               </CardContent>
             </Card>

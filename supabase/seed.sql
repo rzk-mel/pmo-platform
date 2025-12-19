@@ -26,22 +26,22 @@ ON CONFLICT (id) DO NOTHING;
 -- ============================================
 -- 3. Projects
 -- ============================================
-INSERT INTO projects (id, org_id, code, name, description, status, start_date, target_end_date, project_manager_id, tech_lead_id, client_contact_id, estimated_budget, currency) VALUES
+INSERT INTO projects (id, org_id, code, name, description, status, start_date, target_end_date, project_manager_id, tech_lead_id, client_contact_id, estimated_budget, currency, github_repo_url) VALUES
   ('proj-001', 'org-001', 'PMO-2024-001', 'E-Commerce Platform Modernization', 
    'Modernisasi platform e-commerce existing dengan teknologi terbaru. Scope meliputi redesign UI/UX, migrasi database, dan integrasi payment gateway baru.', 
-   'development', '2024-11-01', '2025-03-31', 'user-pm-001', 'user-tl-001', 'user-client-001', 750000000, 'IDR'),
+   'development', '2024-11-01', '2025-03-31', 'user-pm-001', 'user-tl-001', 'user-client-001', 750000000, 'IDR', 'https://github.com/rzk-mel/pmo-platform'),
   
   ('proj-002', 'org-001', 'PMO-2024-002', 'HR Management System', 
    'Pengembangan sistem manajemen SDM terintegrasi untuk mengelola data karyawan, absensi, cuti, dan payroll.', 
-   'scoping', '2024-12-15', '2025-06-30', 'user-pm-001', 'user-tl-001', 'user-client-001', 500000000, 'IDR'),
+   'scoping', '2024-12-15', '2025-06-30', 'user-pm-001', 'user-tl-001', 'user-client-001', 500000000, 'IDR', NULL),
   
   ('proj-003', 'org-001', 'PMO-2024-003', 'Mobile Banking App v2.0', 
    'Pengembangan fitur baru mobile banking: transfer internasional, virtual card, dan integrasi QRIS.', 
-   'sow_review', '2025-01-10', '2025-08-15', 'user-pm-001', 'user-tl-001', 'user-client-001', 1200000000, 'IDR'),
+   'sow_review', '2025-01-10', '2025-08-15', 'user-pm-001', 'user-tl-001', 'user-client-001', 1200000000, 'IDR', NULL),
 
   ('proj-004', 'org-001', 'PMO-2024-004', 'Supply Chain Dashboard', 
    'Dashboard analytics untuk monitoring supply chain real-time dengan prediksi demand menggunakan AI.', 
-   'completed', '2024-06-01', '2024-11-30', 'user-pm-001', 'user-tl-001', 'user-client-001', 350000000, 'IDR')
+   'completed', '2024-06-01', '2024-11-30', 'user-pm-001', 'user-tl-001', 'user-client-001', 350000000, 'IDR', NULL)
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
